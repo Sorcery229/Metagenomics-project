@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# Set input CSV file
+CSV_FILE="genomes.csv"
+TEMP_CSV="temp_file.csv"
+
+# Path to BLAST tool
+BLAST="/Users/gboldirev1/blast/bin/blastn"
+
+# Create a temporary CSV file
+echo "" > "$TEMP_CSV"
+
+# Read CSV line by line and process each row
+while IFS=, read -r col1 col2 col3 col4 col5 col6 col7 query_fna subject_fna rest; do
+    if [[ -f "$query_fna" && -f "$subject_fna" ]]; then
+        # Function to process and concatenate sequences in an .fna file
+        process_fna() {
+            local fna_file="$1"
+            local seq_length
+
+            # Concatenate all sequences into one
+            seq_length=$(awk '/^>/ {if (seq) print seq; seq=""} !/^>/ {seq=seq$0} END {if (seq) print seq}' "$fna_file" | tr -d '\n' | wc -c)
+
+            # Rewrite the file with a single sequence
+            awk '/^>/ {if (seq) print seq; seq=""; print} !/^>/ {seq=seq$0} END {if (seq) print seq}' "$fna_file" > "${fna_file}.tmp"
+            mv "${fna_file}.tmp" "$fna_file"
+
+            echo "$seq_length"
+        }
+
+        # Process both files
+        query_length=$(process_fna "$query_fna")
+        subject_length=$(process_fna "$subject_fna")
+
+        # Generate a unique BLAST output filename
+        blast_output="${query_fna//\//_}_vs_${subject_fna//\//_}_blast.xml"
+
+        # Run BLAST
+        "$BLAST" -query "$query_fna" -subject "$subject_fna" -out "$blast_output" -outfmt 5
+
+        # Overwrite the row in the temp file
+        echo "$col1,$col2,$col3,$col4,$col5,$col6,$col7,$query_fna,$subject_fna,$query_length,$subject_length,$blast_output" >> "$TEMP_CSV"
+    else
+        # Copy the original row if files are missing
+        echo "$col1,$col2,$col3,$col4,$col5,$col6,$col7,$query_fna,$subject_fna,$rest" >> "$TEMP_CSV"
+    fi
+done < "$CSV_FILE"
+
+# Replace the original CSV with the updated one
+mv "$TEMP_CSV" "$CSV_FILE"
+echo "Processing complete. CSV file updated."

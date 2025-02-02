@@ -10,25 +10,29 @@ BLAST="/Users/gboldirev1/blast/bin/blastn"
 # Create a temporary CSV file
 echo "" > "$TEMP_CSV"
 
+# Function to process and concatenate sequences in an .fna file
+process_fna() {
+    local fna_file="$1"
+    local seq_length
+
+    # Check if the file contains multiple sequences using grep ">"
+    if grep -q "^>" "$fna_file"; then
+        # Concatenate all sequences into a single sequence
+        awk '/^>/ {if (seq) print seq; seq=""} !/^>/ {seq=seq$0} END {if (seq) print seq}' "$fna_file" > "${fna_file}.tmp"
+
+        # Replace the original file with the processed one
+        mv "${fna_file}.tmp" "$fna_file"
+    fi
+
+    # Calculate sequence length after concatenation
+    seq_length=$(grep -v "^>" "$fna_file" | tr -d '\n' | wc -c)
+    echo "$seq_length"
+}
+
 # Read CSV line by line and process each row
 while IFS=, read -r col1 col2 col3 col4 col5 col6 col7 query_fna subject_fna rest; do
     if [[ -f "$query_fna" && -f "$subject_fna" ]]; then
-        # Function to process and concatenate sequences in an .fna file
-        process_fna() {
-            local fna_file="$1"
-            local seq_length
-
-            # Concatenate all sequences into one
-            seq_length=$(awk '/^>/ {if (seq) print seq; seq=""} !/^>/ {seq=seq$0} END {if (seq) print seq}' "$fna_file" | tr -d '\n' | wc -c)
-
-            # Rewrite the file with a single sequence
-            awk '/^>/ {if (seq) print seq; seq=""; print} !/^>/ {seq=seq$0} END {if (seq) print seq}' "$fna_file" > "${fna_file}.tmp"
-            mv "${fna_file}.tmp" "$fna_file"
-
-            echo "$seq_length"
-        }
-
-        # Process both files
+        # Process and concatenate sequences in both files
         query_length=$(process_fna "$query_fna")
         subject_length=$(process_fna "$subject_fna")
 

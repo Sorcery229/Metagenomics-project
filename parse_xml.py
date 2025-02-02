@@ -61,19 +61,23 @@ def create_subject_array(subject_length, hit_list):
             # Determine if it's a reverse match based on hit_from and hit_to
             reverse = hit_from > hit_to
             start, end = (hit_to, hit_from) if reverse else (hit_from, hit_to)
-
+            print(start,end)
+            
             for i in range(alignment_len):
+                #print(alignment_len)
                 if reverse:
                     seq_pos = end - 1 - i
                     q_char = qseq[alignment_len - i - 1]
                     h_char = hseq[alignment_len - i - 1]
                 else:
-                    seq_pos = start - 1 + i
+                    seq_pos = start - 2 + i
                     q_char = qseq[i]
                     h_char = hseq[i]
 
                 # Match conditions (1 and 5 for normal/reverse match, 2 and 6 for gaps)
                 if q_char == h_char and q_char != '-':
+                    #print(seq_pos)
+
                     subject_array[seq_pos] = 1 if not reverse else 5  # Normal match → 1, Reverse match → 5
                 elif h_char == '-':
                     subject_array[seq_pos] = 2 if not reverse else 6  # Gap in hseq → 2, Reverse gap in hseq → 6
@@ -112,8 +116,9 @@ def process_csv(input_csv, output_csv):
         writer.writeheader()
 
         for row in reader:
-            xml_file = row['filename']  # Assuming XML filenames are in 'xml_filename' column
-            subject_length = int(row['subject_length'])  # Assuming subject lengths are in 'subject_length' column
+            # Take subject length from the "subject_length" column and XML filename from the "blast_output" column
+            subject_length = int(row['subject_length'])  # "subject_length" column
+            xml_file = row['blast_output']  # "blast_output" column
 
             hit_list = parse_hits_from_xml(xml_file)
 
@@ -127,7 +132,7 @@ def process_csv(input_csv, output_csv):
 
                 # Generate a unique binary filename using the current timestamp
                 timestamp = int(time.time())
-                binary_filename = f"{row['filename'].split('.')[0]}_subject_array_{timestamp}.bin"
+                binary_filename = f"{row['blast_output'].split('.')[0]}_subject_array_{timestamp}.bin"
                 save_subject_array_to_binary(subject_array, binary_filename)
 
                 # Add the binary filename to the row
@@ -140,7 +145,7 @@ def process_csv(input_csv, output_csv):
                 writer.writerow(row)
 
 # Example usage
-input_csv = 'input_file.csv'  # Replace with your input CSV file
+input_csv = 'genomes.csv'  # Replace with your input CSV file
 output_csv = 'output_file.csv'  # Replace with desired output CSV file
 
 process_csv(input_csv, output_csv)

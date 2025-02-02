@@ -7,8 +7,8 @@ TEMP_CSV="temp_file.csv"
 # Path to BLAST tool
 BLAST="/Users/gboldirev1/blast/bin/blastn"
 
-# Create a temporary CSV file
-echo "" > "$TEMP_CSV"
+# Create a temporary CSV file and add the header
+echo "col1,col2,col3,col4,col5,col6,col7,query_fna,subject_fna,query_length,subject_length,blast_output" > "$TEMP_CSV"
 
 # Function to process and concatenate sequences in an .fna file
 process_fna() {
@@ -29,8 +29,17 @@ process_fna() {
     echo "$seq_length"
 }
 
+# Get the total number of lines in the CSV file
+total_lines=$(wc -l < "$CSV_FILE")
+current_line=0
+
 # Read CSV line by line and process each row
 while IFS=, read -r col1 col2 col3 col4 col5 col6 col7 query_fna subject_fna rest; do
+    ((current_line++))
+    
+    # Display progress
+    echo "Processing $current_line of $total_lines..."
+
     if [[ -f "$query_fna" && -f "$subject_fna" ]]; then
         # Process and concatenate sequences in both files
         query_length=$(process_fna "$query_fna")

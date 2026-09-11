@@ -46,15 +46,67 @@ The four folders under `databases/` are stand-alone reruns of this same
 pipeline against individual database pairs; each uses only paths local to its
 own folder and can be run from inside that folder.
 
-## Running the notebooks
+## Installation
+
+```
+git clone https://github.com/Sorcery229/Metagenomics-project.git
+cd Metagenomics-project
+pip install -r requirements.txt
+```
+
+The Python analysis and notebooks additionally require the alignment step's
+external dependency, NCBI BLAST+ (the `blastn` executable), which is not
+pip-installable. Install it from
+https://blast.ncbi.nlm.nih.gov/ and record the version with `blastn -version`.
+
+### Software versions
+
+Pinned in `requirements.txt` and verified with **Python 3.11**:
+pandas 2.3.3, numpy 2.4.6, matplotlib 3.11.0, seaborn 0.13.2,
+matplotlib-venn 1.1.1. The alignment step uses NCBI BLAST+ (`blastn`).
+
+### Input and output formats
+
+- `scripts/download_genomes.sh` - input: a genome list `genomes.csv`
+  (one genome id per row); output: downloaded FASTA (`.fna`) files.
+- `scripts/run_blast.sh` - input: paired FASTA files; output: one BLAST XML
+  report per pair.
+- `scripts/parse_xml.py` - input: a CSV with `subject_length` and
+  `blast_output` (path to a BLAST XML) columns; output: `output_file.csv`, the
+  same rows augmented with per-base count columns `n_of_-7` .. `n_of_7`
+  (1 = match, 4 = mismatch, 3/7 = insertion in subject, negative = insertion in
+  query, 0 = uncovered) plus a `binary_filename` column. Per-base similarity of
+  a pair is `(n_of_1 + n_of_5) / subject_length`.
+
+## Worked example (smoke test)
+
+`example/` contains a minimal, network-free test of the parsing stage that
+runs with only the Python standard library:
+
+```
+cd example
+python ../scripts/parse_xml.py
+```
+
+Compare the `n_of_*` columns of the generated `output_file.csv` against the
+committed `example/expected_output.csv` (`n_of_1 = 18`, `n_of_4 = 2`, giving a
+similarity of 18/20 = 0.90). See `example/README.md` for the one-line check.
+
+## Reproducing the notebooks
 
 Notebook file paths are relative to the repository root, so launch Jupyter
 from the repo root:
 
 ```
-pip install -r requirements.txt
 jupyter notebook
 ```
+
+`notebooks/visualization.ipynb` renders the similarity-distribution figures
+(for example `figures/output_viral.png`, the viral-genome similarity
+distribution); `notebooks/compare_genomes.ipynb` and `notebooks/stats.ipynb`
+produce the pairwise comparisons and summary statistics; `notebooks/match_databases.ipynb`
+performs the cross-database strain matching. Note that some notebook cells
+depend on the external inputs listed below.
 
 ### External inputs not tracked in this repo
 

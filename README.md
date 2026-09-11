@@ -28,7 +28,8 @@ figures/          Generated figures (output_viral.png)
 databases/        Self-contained per-database pipelines (each with its own
                   download/blast scripts, genome list, and outputs)
   refseq_bvbrc/  refseq_ensembl_fungi_data/  refseq_fungi_db/  refseq_viral_host_db/
-reproducibility/  Backing data for the manuscript's low-similarity analysis
+example/          Worked examples that run against committed data:
+  parse_xml smoke test and a figure-reproduction script
 ```
 
 ## Pipeline overview
@@ -125,17 +126,20 @@ supplied locally before the affected cells will run:
 All references that point to files committed in this repository have been
 updated to their new locations under `data/`, `results/`, and `figures/`.
 
-## Reproducibility: low-similarity cases
+## Reproducing a main figure
 
-`reproducibility/` backs the manuscript analysis of cross-database pairs below
-50% similarity:
+`example/reproduce_similarity_figure.py` regenerates the cross-database
+per-base similarity distribution directly from committed data
+(`results/output_file.csv`), using the same binning as
+`notebooks/visualization.ipynb` (per-pair similarity = `n_of_1 / subject_length`):
 
-- `low_similarity_461_classification.csv` — every low-similarity pair with its
-  accessions, similarity value, source-repository `genome_status`, and an
-  assigned category. Summing the `category` column reproduces the reported
-  counts: 461 pairs total, of which 7 were already flagged by the source
-  repository (5 deprecated + 2 with no status) and 199 arise from a
-  plasmid-vs-complete retrieval-convention difference.
-- `low_similarity_461_accessions.csv` — the accession list for those pairs.
+```
+python example/reproduce_similarity_figure.py
+```
 
-See `reproducibility/DATA_DICTIONARY.md` for column definitions.
+It writes `example/similarity_distribution.png` (the bar chart) and
+`example/similarity_counts.csv` (category -> count). Diff the counts against
+the committed `example/expected_similarity_counts.csv` to confirm the result:
+20,651 pairs, 17,633 at 100% identity and 2,238 at 99%, with 70 below 10% and
+33 below 70%. The counts are deterministic; the PNG may differ at the pixel
+level across matplotlib versions.

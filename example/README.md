@@ -40,3 +40,19 @@ cd example && python ../scripts/parse_xml.py \
   && python -c "import csv; r=list(csv.DictReader(open('output_file.csv')))[0]; \
      assert (r['n_of_1'],r['n_of_4'])==('18','2'), r; print('OK: similarity =', (int(r['n_of_1'])+int(r['n_of_5']))/int(r['subject_length']))"
 ```
+
+
+## Figure reproduction
+
+`reproduce_similarity_figure.py` regenerates the cross-database per-base
+similarity distribution from committed data (`results/output_file.csv`), using
+the same binning as `notebooks/visualization.ipynb`:
+
+```
+python example/reproduce_similarity_figure.py
+```
+
+Outputs `similarity_distribution.png` and `similarity_counts.csv`. Diff the
+counts against the committed `expected_similarity_counts.csv` (20,651 pairs;
+17,633 at 100%, 2,238 at 99%, 70 below 10%, 33 below 70%). Counts are
+deterministic; the PNG may vary at the pixel level across matplotlib versions.

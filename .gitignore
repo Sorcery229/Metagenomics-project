@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# BLAST / pipeline intermediates
+*.xml
+*.tmp
+temp_file.csv
+*.fna
+*.fna.tmp
+
+# OS
+.DS_Store

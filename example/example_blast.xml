@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<BlastOutput>
+  <BlastOutput_iterations>
+    <Iteration>
+      <Iteration_iter-num>1</Iteration_iter-num>
+      <Iteration_hits>
+        <Hit>
+          <Hit_num>1</Hit_num>
+          <Hit_id>test_subject_1</Hit_id>
+          <Hit_len>20</Hit_len>
+          <Hit_hsps>
+            <Hsp>
+              <Hsp_num>1</Hsp_num>
+              <Hsp_identity>18</Hsp_identity>
+              <Hsp_align-len>20</Hsp_align-len>
+              <Hsp_qseq>ACGTTCGTACGTACATACGT</Hsp_qseq>
+              <Hsp_hseq>ACGTACGTACGTACGTACGT</Hsp_hseq>
+              <Hsp_hit-from>1</Hsp_hit-from>
+              <Hsp_hit-to>20</Hsp_hit-to>
+            </Hsp>
+          </Hit_hsps>
+        </Hit>
+      </Iteration_hits>
+    </Iteration>
+  </BlastOutput_iterations>
+</BlastOutput>

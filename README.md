@@ -1,4 +1,4 @@
-# Metagenomics-project — Cross-DB Genomic Comparator (CDGC)
+# Cross-DB Genomic Comparator (CDGC)
 
 A framework for quantifying genome-similarity discrepancies across microbial
 reference databases (BV-BRC/PATRIC, RefSeq, Ensembl). Genome pairs matched

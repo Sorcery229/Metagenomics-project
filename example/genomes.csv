@@ -1,0 +1,2 @@
+genome_id,subject_length,blast_output
+test_genome_1,20,example_blast.xml

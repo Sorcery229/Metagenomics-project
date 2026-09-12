@@ -1,0 +1,4 @@
+domain,match_level,n_pairs,n_100,n_95to100,n_below95,pct_100,pct_95to100,pct_below95,mean_similarity,std_similarity
+Bacteria,strain,285051,158649,119975,6427,55.7,42.1,2.3,0.9947,0.0443
+Viruses,species,12715,12555,89,71,98.7,0.7,0.6,0.9972,0.0411
+Fungi,species,470,72,351,47,15.3,74.7,10.0,0.9807,0.0608

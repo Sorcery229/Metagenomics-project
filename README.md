@@ -143,3 +143,48 @@ the committed `example/expected_similarity_counts.csv` to confirm the result:
 20,651 pairs, 17,633 at 100% identity and 2,238 at 99%, with 70 below 10% and
 33 below 70%. The counts are deterministic; the PNG may differ at the pixel
 level across matplotlib versions.
+
+## Cross-database per-base similarity figures
+
+`scripts/reproduce_similarity_figures.py` regenerates the two similarity-distribution
+figures from the committed per-domain tables under `data/similarity/`:
+
+```
+python scripts/reproduce_similarity_figures.py
+```
+
+Inputs (`data/similarity/`), one row per cross-database genome pair:
+
+| column          | description                                                        |
+|-----------------|--------------------------------------------------------------------|
+| `subject_length`| length of the reference (subject) genome, in bases                  |
+| `matched_bases` | aligned identical bases (bacteria: `n_of_1 + n_of_5`; viruses/fungi: aligned matches) |
+| `similarity`    | `matched_bases / subject_length`                                    |
+| `source`        | (fungi only) `ensembl` or `fungidb`                                 |
+
+The script asserts `similarity == matched_bases / subject_length` on load, so the
+values are recomputed from the primitive counts rather than trusted as stored.
+
+Similarity bands (identical for all three domains):
+
+- `100%`     : `similarity >= 0.999999`
+- `95-<100%` : `0.95 <= similarity < 0.999999`
+- `<95%`     : `similarity < 0.95`
+
+Outputs (`figures/`):
+
+- `fig_similarity_strain.png`  — Bacteria, strain-level (N = 285,051)
+- `fig_similarity_species.png` — Viruses (N = 12,715) and Fungi (N = 470), species-level
+- `similarity_band_distribution.csv` — the per-band counts, percentages, mean and
+  standard deviation behind both figures
+
+Expected band percentages (also in `figures/similarity_band_distribution.csv`):
+
+| domain   | level  | N       | 100%  | 95-<100% | <95%  | mean   | sd     |
+|----------|--------|---------|-------|----------|-------|--------|--------|
+| Bacteria | strain | 285,051 | 55.7% | 42.1%    | 2.3%  | 0.9947 | 0.0443 |
+| Viruses  | species| 12,715  | 98.7% | 0.7%     | 0.6%  | 0.9972 | 0.0411 |
+| Fungi    | species| 470     | 15.3% | 74.7%    | 10.0% | 0.9807 | 0.0608 |
+
+The counts are deterministic; the PNGs may differ at the pixel level across
+matplotlib versions.

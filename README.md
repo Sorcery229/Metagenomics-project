@@ -188,3 +188,40 @@ Expected band percentages (also in `figures/similarity_band_distribution.csv`):
 
 The counts are deterministic; the PNGs may differ at the pixel level across
 matplotlib versions.
+
+## Database overlap Venn figures (strain and species level)
+
+`scripts/reproduce_venn_overlaps.py` regenerates two Venn figures directly from
+committed database metadata; every region count is a set operation, nothing is
+hard-coded:
+
+```
+python scripts/reproduce_venn_overlaps.py
+```
+
+It writes `figures/venn_strain_overlap.png` (Bacteria: RefSeq vs BV-BRC),
+`figures/venn_species_overlap.png` (Viruses and Fungi), and
+`figures/venn_overlap_counts.csv` (region -> reproduced count alongside the
+manuscript value).
+
+Set definitions (key -> committed source file):
+
+| Domain | Level | Database | Key | Source file |
+| --- | --- | --- | --- | --- |
+| Bacteria | strain | RefSeq | (taxid, strain) | `data/venn/bacteria_refseq_strain_keys.csv.gz` |
+| Bacteria | strain | BV-BRC | (taxon_id, strain) | `data/venn/bacteria_bvbrc_strain_keys.csv.gz` |
+| Viruses | species | RefSeq | taxid | `data/assembly_summaries/assembly_summary_viral.txt` |
+| Viruses | species | VirusHostDB | virus tax id | `data/venn/virushostdb.tsv.gz` |
+| Fungi | species | Ensembl | taxonomy_id | `data/venn/species_EnsemblFungi.txt` |
+| Fungi | species | RefSeq | taxid | `data/assembly_summaries/assembly_summary_fungi_refseq.txt` |
+| Fungi | species | FungiDB | species_ncbi_tax_id | `data/venn/fungidb_organisms.csv` |
+
+The bacterial strain-key files are the deduplicated (taxid, strain) representative
+keys derived from NCBI `assembly_summary.txt` (RefSeq representative genomes) and
+the BV-BRC `genome_metadata` table; the raw tables are too large to commit.
+`virushostdb.tsv.gz` and `fungidb_organisms.csv` are snapshots of the living
+VirusHostDB (https://www.genome.jp/ftp/db/virushostdb/) and FungiDB
+(https://fungidb.org) lists. Because those two databases keep growing, the
+VirusHostDB-only and FungiDB region counts drift slightly above the manuscript
+values, while the RefSeq/BV-BRC strain intersection and the Ensembl/RefSeq fungal
+intersection reproduce the manuscript exactly.

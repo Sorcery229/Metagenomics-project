@@ -100,7 +100,6 @@ def fig_strain(BAC):
     setnum(v, {"10": s[0], "11": s[2], "01": s[1]}, 13)
     v.get_label_by_id("10").set_position((-0.62, 0.0))
     v.get_label_by_id("11").set_position((-0.28, 0.0))
-    ax.text(-0.02, 1.04, "a", transform=ax.transAxes, fontsize=18, fontweight="bold", va="top")
     ax.text(0.30, 1.02, "Bacteria", transform=ax.transAxes, fontsize=15)
     ax.text(-0.55, -0.60, "RefSeq", fontsize=11); ax.text(0.34, -0.85, "BV-BRC", fontsize=11)
     ax.text(0.5, -0.26, "Strain overlap", transform=ax.transAxes, ha="center", fontsize=13)

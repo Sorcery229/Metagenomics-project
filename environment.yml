@@ -1,0 +1,18 @@
+# Conda environment for the Cross-DB Genomic Comparator (CDGC).
+# Installs the pinned Python stack together with the aligner (NCBI BLAST+).
+#
+#   conda env create -f environment.yml
+#   conda activate cdgc
+#
+# This provides the `blastn` executable on PATH, so scripts/run_blast.sh can be
+# run without editing its BLAST path (see README, "Running the pipeline").
+name: cdgc
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - blast=2.11.0          # NCBI BLAST+ (provides the `blastn` executable)
+  - pip
+  - pip:
+      - -r requirements.txt

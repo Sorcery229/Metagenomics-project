@@ -49,22 +49,36 @@ own folder and can be run from inside that folder.
 
 ## Installation
 
+The recommended way to reproduce the full environment, including the aligner,
+is the committed conda environment (`environment.yml`), which installs the
+pinned Python stack together with NCBI BLAST+ 2.11.0 and puts `blastn` on your
+`PATH`:
+
 ```
 git clone https://github.com/Sorcery229/Metagenomics-project.git
 cd Metagenomics-project
+conda env create -f environment.yml
+conda activate cdgc
+```
+
+Alternatively, install the Python dependencies with pip and supply BLAST+
+yourself:
+
+```
 pip install -r requirements.txt
 ```
 
-The Python analysis and notebooks additionally require the alignment step's
-external dependency, NCBI BLAST+ (the `blastn` executable), which is not
-pip-installable. Install it from
-https://blast.ncbi.nlm.nih.gov/ and record the version with `blastn -version`.
+The alignment step (`scripts/run_blast.sh`) requires the NCBI BLAST+ `blastn`
+executable, which is not pip-installable. The analysis in this study used
+**NCBI BLAST+ 2.11.0**, which the conda environment above pins. If you install
+BLAST+ manually (from https://blast.ncbi.nlm.nih.gov/), confirm the version with
+`blastn -version`.
 
 ### Software versions
 
-Pinned in `requirements.txt` and verified with **Python 3.11**:
-pandas 2.3.3, numpy 2.4.6, matplotlib 3.11.0, seaborn 0.13.2,
-matplotlib-venn 1.1.1. The alignment step uses NCBI BLAST+ (`blastn`).
+Verified with **Python 3.11**: pandas 2.3.3, numpy 2.4.6, matplotlib 3.11.0,
+seaborn 0.13.2, matplotlib-venn 1.1.1 (pinned in `requirements.txt`), and
+**NCBI BLAST+ 2.11.0** (pinned in `environment.yml`).
 
 ### Input and output formats
 
@@ -78,6 +92,62 @@ matplotlib-venn 1.1.1. The alignment step uses NCBI BLAST+ (`blastn`).
   (1 = match, 4 = mismatch, 3/7 = insertion in subject, negative = insertion in
   query, 0 = uncovered) plus a `binary_filename` column. Per-base similarity of
   a pair is `(n_of_1 + n_of_5) / subject_length`.
+
+## Running the pipeline (exact commands)
+
+Each script reads and writes fixed file names in the current working directory,
+so the "input parameters" are the files that must be present in that directory,
+not command-line flags. Run each step from a directory that contains the named
+input.
+
+1. **Download genomes.** Requires `genomes.csv` in the working directory, with
+   the BV-BRC genome id in column 4 and the NCBI FTP path in column 6:
+
+   ```
+   bash scripts/download_genomes.sh
+   ```
+   Output: one `<genome_id>.fna` (BV-BRC) and one `*_genomic.fna` (NCBI,
+   gunzipped) per row.
+
+2. **Pairwise alignment.** Requires `genomes.csv` with the paired FASTA paths in
+   columns 8 (query) and 9 (subject). Either activate the conda environment (so
+   `blastn` is on `PATH`) or edit the `BLAST` variable at the top of the script
+   to point at your `blastn`:
+
+   ```
+   bash scripts/run_blast.sh
+   ```
+   Each pair is aligned with the full-length command:
+   ```
+   blastn -query <query.fna> -subject <subject.fna> -out <pair>.xml -outfmt 5
+   ```
+   Output: one BLAST XML report (`-outfmt 5`) per pair, and `genomes.csv`
+   updated with `query_length`, `subject_length`, and `blast_output` columns.
+
+3. **Parse alignments.** Requires `genomes.csv` with `subject_length` and
+   `blast_output` columns (as produced by step 2) in the working directory:
+
+   ```
+   python scripts/parse_xml.py
+   ```
+   Reads `genomes.csv`, writes `output_file.csv` (the per-base count columns
+   `n_of_-7` .. `n_of_7` plus `binary_filename`). Per-pair similarity =
+   `(n_of_1 + n_of_5) / subject_length`.
+
+The four per-database pipelines under `databases/` repeat these same three steps
+with the same fixed file names (`genomes.csv` -> `output_file.csv`); run each
+from inside its own folder. Each `databases/*/run_blast*.sh` has its own
+hard-coded `BLAST` path at the top that must be edited to your `blastn` before
+running.
+
+The figure-reproduction scripts take no inputs beyond the committed data and are
+run from the repository root:
+
+```
+python example/reproduce_similarity_figure.py    # -> example/similarity_distribution.png, example/similarity_counts.csv
+python scripts/reproduce_similarity_figures.py   # -> figures/fig_similarity_{strain,species}.png, figures/similarity_band_distribution.csv
+python scripts/reproduce_venn_overlaps.py        # -> figures/venn_{strain,species}_overlap.png, figures/venn_overlap_counts.csv
+```
 
 ## Worked example (smoke test)
 
@@ -122,6 +192,14 @@ supplied locally before the affected cells will run:
 - `summary.csv`, `10k_diff.csv` and the intermediate files generated during a
   run (`remaining_genomes.csv`, `common_strains_with_*.csv`,
   `complete_labeled_genomes.csv`, `all_bacteria_results.csv`)
+
+For full reproducibility we recommend depositing these external inputs (the
+working genome lists and the large representative-assembly tables that are too
+big to track in git) in a Zenodo record and citing its DOI here, so that a
+reader can retrieve the exact files used rather than re-deriving them. Several
+of these inputs come from living databases, so the download date or release of
+each file matters; record it alongside the deposited files (see the acquisition
+dates noted for the committed snapshots in the Venn section below).
 
 All references that point to files committed in this repository have been
 updated to their new locations under `data/`, `results/`, and `figures/`.
@@ -225,3 +303,12 @@ VirusHostDB (https://www.genome.jp/ftp/db/virushostdb/) and FungiDB
 VirusHostDB-only and FungiDB region counts drift slightly above the manuscript
 values, while the RefSeq/BV-BRC strain intersection and the Ensembl/RefSeq fungal
 intersection reproduce the manuscript exactly.
+
+**Acquisition dates of the committed snapshots** (record these when citing the
+data, since these are living databases): the VirusHostDB list
+(https://www.genome.jp/ftp/db/virushostdb/) and the FungiDB organism list
+(https://fungidb.org, VEuPathDB AllOrganisms report) were downloaded on
+2026-09-15; the Ensembl Fungi species list
+(`data/venn/species_EnsemblFungi.txt`) was obtained on 2026-09-15; and the NCBI
+RefSeq assembly summaries (`data/assembly_summaries/assembly_summary_viral.txt`
+and `assembly_summary_fungi_refseq.txt`) were downloaded on 2026-09-11.

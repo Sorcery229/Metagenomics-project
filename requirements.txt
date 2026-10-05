@@ -7,5 +7,7 @@ matplotlib-venn==1.1.1
 jupyter
 notebook
 
-# External (not pip-installable): NCBI BLAST+ (the `blastn` executable),
-# used by scripts/run_blast.sh. Record your version with: blastn -version
+# External (not pip-installable): NCBI BLAST+ 2.11.0 (the `blastn` executable),
+# used by scripts/run_blast.sh. This is the version used in the study; it is
+# pinned in environment.yml (conda). If you install BLAST+ manually, confirm the
+# version with: blastn -version

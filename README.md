@@ -149,6 +149,29 @@ python scripts/reproduce_similarity_figures.py   # -> figures/fig_similarity_{st
 python scripts/reproduce_venn_overlaps.py        # -> figures/venn_{strain,species}_overlap.png, figures/venn_overlap_counts.csv
 ```
 
+### Python scripts: exact invocation
+
+None of the Python scripts take command-line arguments; each reads and writes
+fixed file names. For the parsing scripts these names are set as the `input_csv`
+and `output_csv` variables at the top of the file and can be edited there. The
+complete invocation for every Python script is:
+
+| Script | Run from | Command | Reads | Writes |
+| --- | --- | --- | --- | --- |
+| `scripts/parse_xml.py` | a directory containing `genomes.csv` | `python /path/to/repo/scripts/parse_xml.py` | `genomes.csv` (with `subject_length` and `blast_output` columns from the BLAST step) | `output_file.csv` |
+| `databases/refseq_viral_host_db/parse_xml.py` | `databases/refseq_viral_host_db/` | `cd databases/refseq_viral_host_db && python parse_xml.py` | `genomes.csv` | `output_file.csv` |
+| `databases/refseq_fungi_db/parse_xml.py` | `databases/refseq_fungi_db/` | `cd databases/refseq_fungi_db && python parse_xml.py` | `genomes.csv` | `output_file.csv` |
+| `databases/refseq_ensembl_fungi_data/parse_xml.py` | `databases/refseq_ensembl_fungi_data/` | `cd databases/refseq_ensembl_fungi_data && python parse_xml.py` | `genomes.csv` | `output_file.csv` |
+| `example/reproduce_similarity_figure.py` | repository root | `python example/reproduce_similarity_figure.py` | `results/output_file.csv` | `example/similarity_distribution.png`, `example/similarity_counts.csv` |
+| `scripts/reproduce_similarity_figures.py` | repository root | `python scripts/reproduce_similarity_figures.py` | `data/similarity/*.csv` | `figures/fig_similarity_species.png`, `figures/fig_similarity_strain.png`, `figures/similarity_band_distribution.csv` |
+| `scripts/reproduce_venn_overlaps.py` | repository root | `python scripts/reproduce_venn_overlaps.py` | `data/venn/*`, `data/assembly_summaries/*` | `figures/venn_strain_overlap.png`, `figures/venn_species_overlap.png`, `figures/venn_overlap_counts.csv` |
+
+The three figure-reproduction scripts (`example/reproduce_similarity_figure.py`,
+`scripts/reproduce_similarity_figures.py`, `scripts/reproduce_venn_overlaps.py`)
+resolve their paths relative to the repository, so they can be launched from any
+directory; the others read `genomes.csv` from the current working directory and
+so must be run from the folder that holds it.
+
 ## Worked example (smoke test)
 
 `example/` contains a minimal, network-free test of the parsing stage that

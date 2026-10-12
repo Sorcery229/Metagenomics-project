@@ -1,0 +1,2 @@
+genome_id,subject_length,blast_output,n_of_-7,n_of_-6,n_of_-5,n_of_-4,n_of_-3,n_of_-2,n_of_-1,n_of_0,n_of_1,n_of_2,n_of_3,n_of_4,n_of_5,n_of_6,n_of_7
+test_genome_1,20,example_blast.xml,0,0,0,0,0,0,0,0,18,0,0,2,0,0,0

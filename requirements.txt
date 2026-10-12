@@ -1,7 +1,13 @@
-pandas
-numpy
-matplotlib
-seaborn
-biopython
+# Verified with Python 3.11
+pandas==2.3.3
+numpy==2.4.6
+matplotlib==3.11.0
+seaborn==0.13.2
+matplotlib-venn==1.1.1
 jupyter
 notebook
+
+# External (not pip-installable): NCBI BLAST+ 2.11.0 (the `blastn` executable),
+# used by scripts/run_blast.sh. This is the version used in the study; it is
+# pinned in environment.yml (conda). If you install BLAST+ manually, confirm the
+# version with: blastn -version

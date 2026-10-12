@@ -1,0 +1,14 @@
+domain,level,region,reproduced_from_metadata,screenshot_manuscript
+Bacteria,strain,RefSeq only,58791,58793
+Bacteria,strain,RefSeq ∩ BV-BRC,295055,295055
+Bacteria,strain,BV-BRC only,618275,617380
+Viruses,species,VirusHostDB only,23583,20688
+Viruses,species,VirusHostDB ∩ RefSeq,14285,14294
+Viruses,species,RefSeq only,216,207
+Fungi,species,Ensembl only,784,785
+Fungi,species,RefSeq only,285,290
+Fungi,species,FungiDB only,161,156
+Fungi,species,Ensembl ∩ RefSeq,316,318
+Fungi,species,Ensembl ∩ FungiDB,48,47
+Fungi,species,RefSeq ∩ FungiDB,21,16
+Fungi,species,Ensembl ∩ RefSeq ∩ FungiDB,37,35
